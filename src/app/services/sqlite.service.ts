@@ -3,9 +3,9 @@ import {
     CapacitorSQLite,
     SQLiteDBConnection,
     SQLiteConnection,
-    capSQLiteRunOptions // Corregido el nombre del tipo
+    capSQLiteRunOptions
 } from '@capacitor-community/sqlite';
-// Importa los tipos
+
 import {
     Ingrediente,
     UnidadMedida,
@@ -15,6 +15,7 @@ import {
 } from '../models/database.types';
 
 import { Platform } from '@ionic/angular';
+import {error} from "@capacitor/assets/dist/util/log";
 
 @Injectable({
     providedIn: 'root'
@@ -24,7 +25,7 @@ export class SqliteService {
     private _isSQLiteActive: boolean = false;
     private db!: SQLiteDBConnection;
     private sqliteConnection!: SQLiteConnection;
-    private dbReadyPromise: Promise<void>; // NUEVO: Promesa para manejar la inicialización asíncrona.
+    private dbReadyPromise: Promise<void>;
 
     public get isSQLiteActive(): boolean {
         return this._isSQLiteActive;
@@ -233,6 +234,40 @@ export class SqliteService {
             console.error("SQLITE ERROR en getIngredientes:", e);
             return [];
         }
+    }
+
+    public async addIngrediente(ingrediente: Ingrediente): Promise<Ingrediente> {
+        await this.dbReadyPromise;
+
+        if(!this._isSQLiteActive){
+            throw error("SQLite no esta activo!");
+        }
+        const ing_id = ingrediente.ing_id ?? crypto.randomUUID();
+
+        const query = ` 
+            insert into ingredientes (
+                ing_id,
+                ing_nombre,
+                ing_precio,
+                is_deleted,
+                unmed_id,
+                ing_cantidad_base                                      
+            )values (?,?,?,?,?,?);
+            `;
+
+        await this.db.run(query, [
+            ingrediente.ing_id,
+            ingrediente.ing_nombre,
+            ingrediente.ing_precio,
+            ingrediente.is_deleted,
+            ingrediente.unmed_id,
+            ingrediente.ing_cantidad_base
+        ]);
+
+        return {
+            ...ingrediente,
+            ing_id
+        };
     }
 
     public async getUnidadesMedida(): Promise<UnidadMedida[]> {

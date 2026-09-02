@@ -21,6 +21,9 @@ import {IonHeader,
   IonSearchbar,
   IonIcon} from '@ionic/angular/standalone';
 
+//Importación de prueba
+import {SqliteService} from '../../services/sqlite.service';
+
 import { addIcons } from 'ionicons';
 
 import {
@@ -64,12 +67,16 @@ export class IngredientesPage {
   private ingredientesService = inject(IngredientesService);
   private router = inject(Router);
 
+  //Injection de SqliteService para test
+  private sqliteService = inject(SqliteService);
+
   ingredientes: Ingrediente[] = [];
   userRole: UserRole = 'user';
   isLoading: boolean = false;
 
   public searchTerm: string = '';
 
+  //método de busqueda en la página
   handleSearch(event: any) {
     this.searchTerm = event.target.value.toLowerCase();
     this.loadData();
@@ -84,10 +91,7 @@ export class IngredientesPage {
     });
   }
 
-  async ionViewWillEnter() {
-    await this.loadData();
-  }
-
+  //Método de carga de ingredientes en la página
   async loadData() {
     this.isLoading = true;
     try {
@@ -103,11 +107,13 @@ export class IngredientesPage {
     }
   }
 
+  //Método de editar en la página
   public edit(id: string) {
 
     this.router.navigate(['/ingredientes', id]);
   }
 
+  //Método de eliminación segura en el proyecto
   async softDelete(id: string, nombre: string, isCurrentlyDeleted: boolean) {
 
     const newState = !isCurrentlyDeleted;
@@ -130,7 +136,36 @@ export class IngredientesPage {
     }
   }
 
+  //Método para prueba de inserción sqlite con botón en ingrediente.page
+  async testAddIngrediente(){
+    try {
+      const ingrediente: Ingrediente = {
+        ing_nombre: 'Harina de prueba',
+        ing_precio: 1500,
+        unmed_id: '9386ac1a-66fd-4d4e-a861-856c100426de',
+        is_deleted: false,
+        ing_cantidad_base: 1000
+      }
+
+      const result = await this.sqliteService.addIngrediente(ingrediente);
+      console.log('INGREDIENTE INSERTADO: ', result);
+
+      const ingredientes = await this.sqliteService.getIngredientes();
+      console.log('INGREDIENTES EN SQL: ', ingredientes);
+
+    }catch (error){
+
+      console.error('ERROR INSERTANDO INGREDIENTE: ', error);
+    }
+
+  }
+
+  //Validación del tipo de usuario
   isAdministrador(): boolean {
     return this.userRole === 'administrador';
+  }
+
+  async ionViewWillEnter() {
+    await this.loadData();
   }
 }

@@ -118,6 +118,7 @@ export class IngredienteFormPage implements OnInit {
     }
   }
 
+  //Este es el coso que quiero cambiar para que las notificaciones sean a través del sistema nativo de android y no como una apntalla en la aplicación
   async presentToast(message: string, color: string = 'success') {
     const toast = await this.toastController.create({
       message: message,
@@ -128,6 +129,7 @@ export class IngredienteFormPage implements OnInit {
     await toast.present();
   }
 
+  //Onsubmit, envía los datos del formulario para crear la materia prima
   async onSubmit() {
     if (this.ingredienteForm.invalid) {
       alert('Por favor, completa todos los campos requeridos correctamente.');
@@ -171,6 +173,7 @@ export class IngredienteFormPage implements OnInit {
       this.isLoading = false;
     }
   }
+
 
   private onUnidadChange(unmedId: string): void {
 

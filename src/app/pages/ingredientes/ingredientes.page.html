@@ -44,6 +44,10 @@
           {{ ing.unmed_nombre }}
         </p>
 
+          <ion-button (click)="testAddIngrediente()">
+              Probar SQLite
+          </ion-button>
+
         <ion-text color="danger" *ngIf="ing.is_deleted">
           <small>(INACTIVO - Eliminado)</small>
         </ion-text>
